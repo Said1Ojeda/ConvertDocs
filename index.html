@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRSP-CONVERT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{primary:'#E5322D'}}}}</script>
+    <style>
+        .spa-section{display:none}
+        .spa-section:focus {outline: none;}
+        .drop-label{display:block;border:2px dashed #cbd5e1;border-radius:1rem;padding:3rem;cursor:pointer;transition:all .3s ease;background:#f9fafb;text-align:center}
+        .drop-label:hover,.drop-label.dragover{border-color:#E5322D;background:rgba(229,50,45,.05);transform:scale(1.01)}
+        .dark .drop-label{background:rgba(17,24,39,.5)}
+        .loader{border:4px solid #f3f3f3;border-top:4px solid #E5322D;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto;display:none}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+        .toast{padding:14px 20px;border-radius:12px;color:#fff;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:slideIn .3s ease;display:flex;align-items:center;gap:10px;max-width:340px}
+        .toast.success{background:#16a34a}.toast.error{background:#E5322D}.toast.info{background:#2563eb}
+        @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+        .progress-wrap{width:100%;background:#e5e7eb;border-radius:99px;height:8px;margin-top:14px;overflow:hidden;display:none}
+        .progress-fill{height:100%;background:#E5322D;border-radius:99px;transition:width .25s;width:0%}
+        .drag-item{cursor:grab;transition:opacity .2s}.drag-item.dragging{opacity:.3}
+        .drag-item:hover{background:#f3f4f6}.dark .drag-item:hover{background:rgba(55,65,81,.5)}
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
+<div id="toast-container" aria-live="polite"></div>
+
+<nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center max-w-6xl">
+        <div class="flex items-center space-x-3 cursor-pointer group" onclick="app.navigate('home')">
+            <div class="bg-primary text-white p-2 rounded-lg group-hover:rotate-12 transition-transform">
+                <i class="fa-solid fa-file-pdf text-xl"></i>
+            </div>
+            <span class="text-2xl font-black tracking-tight">DRSP<span class="text-primary">GRH</span></span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="app.navigate('config-api')" title="Configurar API Key" class="text-gray-500 hover:text-primary transition focus-visible:ring-2 focus-visible:ring-primary rounded">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </button>
+            <button onclick="app.toggleDarkMode()" aria-label="Alternar modo oscuro" class="text-gray-500 hover:text-primary transition focus-visible:ring-2 focus-visible:ring-primary rounded">
+                <i id="theme-icon" class="fa-solid fa-moon text-xl"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="flex-grow container mx-auto px-6 py-12 max-w-5xl">
+
+<div id="home" class="spa-section" style="display:block" tabindex="-1" role="region" aria-label="Inicio">
+<div class="animate__animated animate__fadeInUp">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+        <h1 class="text-5xl font-black mb-4">CONVERT - DRSP<br>RECLUTAMIENTO Y SELECCIÓN DE PERSONAL</h1>
+        <p class="text-gray-500 dark:text-gray-400">Ahora sí, podemos convertir documentos sin que los seeeeeñores de informática nos bloqueen</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
+        <div onclick="app.navigate('compress-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-primary transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-compress text-2xl text-primary"></i></div>
+            <h2 class="text-xl font-bold mb-1">Comprimir PDF</h2>
+            <p class="text-sm text-gray-500">Reduce el tamaño eligiendo el nivel de calidad.</p>
+        </div>
+        <div onclick="app.navigate('pdf-to-word')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-blue-500 transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-word text-2xl text-blue-600"></i></div>
+            <h2 class="text-xl font-bold mb-1">PDF a Word</h2>
+            <p class="text-sm text-gray-500">Extrae texto conservando diseño, tablas y colores.</p>
+        </div>
+        <div onclick="app.navigate('pdf-to-excel')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-green-500 transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-excel text-2xl text-green-600"></i></div>
+            <h2 class="text-xl font-bold mb-1">PDF a Excel</h2>
+            <p class="text-sm text-gray-500">Conversión Excel idéntico al PDF que va a subir.</p>
+        </div>
+        <div onclick="app.navigate('merge-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-purple-500 transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-object-group text-2xl text-purple-600"></i></div>
+            <h2 class="text-xl font-bold mb-1">Unir PDF</h2>
+            <p class="text-sm text-gray-500">Combina archivos.</p>
+        </div>
+        <div onclick="app.navigate('img-to-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-yellow-500 transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-images text-2xl text-yellow-500"></i></div>
+            <h2 class="text-xl font-bold mb-1">JPG a PDF</h2>
+            <p class="text-sm text-gray-500">Convierte imágenes a un PDF unificado va vos.</p>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="config-api" class="spa-section max-w-xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-primary font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
+        <h1 class="text-3xl font-black mb-2 text-center">Configuración de API</h1>
+        <p class="text-center text-gray-500 text-sm mb-8">NO INGRESAR NADAAA.</p>
+        
+        <div class="mb-6">
+            <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Clave Secreta</label>
+            <input type="text" id="api-key-input" placeholder="Ej: nP8QrbnS5EKvSBIpS2E1..." class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition font-mono">
+        </div>
+        
+        <button onclick="app.saveApiKey()" class="w-full bg-gray-800 dark:bg-gray-700 text-white py-4 rounded-xl font-bold hover:bg-black dark:hover:bg-gray-600 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Clave
+        </button>
+        
+        <div class="mt-6 text-center text-xs text-gray-400">
+            Copyright - por si me quieren seguir en Git --- ><a href="https://github.com/Said1Ojeda" target="_blank" class="text-primary hover:underline">Said.Ojeda</a>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="compress-pdf" class="spa-section max-w-3xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-primary font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
+        <h1 class="text-3xl font-black mb-1 text-center">Comprimir PDF</h1>
+        <p class="text-center text-gray-500 text-sm mb-6">Elige el nivel de compresión y sube tu archivo</p>
+        <div class="flex flex-col md:flex-row gap-3 justify-center mb-8">
+            <label class="cursor-pointer flex-1">
+                <input type="radio" name="compressionLevel" value="low" class="peer sr-only">
+                <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 text-center transition">
+                    <div class="text-2xl mb-1"></div><div class="font-bold">Extrema</div><div class="text-xs text-gray-400">Menor tamaño posible</div>
+                </div>
+            </label>
+            <label class="cursor-pointer flex-1">
+                <input type="radio" name="compressionLevel" value="medium" class="peer sr-only" checked>
+                <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 text-center transition">
+                    <div class="text-2xl mb-1"></div><div class="font-bold">Recomendada</div><div class="text-xs text-gray-400">Balance perfecto</div>
+                </div>
+            </label>
+            <label class="cursor-pointer flex-1">
+                <input type="radio" name="compressionLevel" value="high" class="peer sr-only">
+                <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 text-center transition">
+                    <div class="text-2xl mb-1"></div><div class="font-bold">Alta Calidad</div><div class="text-xs text-gray-400">Mayor mejora visual</div>
+                </div>
+            </label>
+        </div>
+        <label id="compress-label" class="drop-label">
+            <input type="file" id="compress-input" accept="application/pdf" class="sr-only">
+            <i class="fa-solid fa-cloud-arrow-up text-4xl text-primary mb-3 block"></i>
+            <div class="bg-primary text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar PDF</div>
+            <p class="text-sm text-gray-400 mt-1">o arrastra y suelta aquí</p>
+        </label>
+        <div class="progress-wrap" id="compress-pw"><div class="progress-fill" id="compress-pf"></div></div>
+        <div id="compress-loader" class="loader mt-6"></div>
+        <div id="compress-status" aria-live="polite" class="mt-4 text-sm font-semibold text-primary text-center"></div>
+    </div>
+</div>
+</div>
+
+<div id="pdf-to-word" class="spa-section max-w-3xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-blue-600 font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+    <div class="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10 mt-6 md:mt-0">
+        <div class="absolute -top-4 md:top-6 right-0 md:right-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-coins"></i> <span class="api-credits-count">Consultando...</span>
+        </div>
+
+        <h1 class="text-3xl font-black mb-1 text-center mt-6 md:mt-0">PDF a Word</h1>
+        <p class="text-center text-gray-500 text-sm mb-2">Conversión Tuanis</p>
+        <div class="flex justify-center gap-3 mb-6 flex-wrap">
+            <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Tablas</span>
+            <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Imágenes</span>
+            <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Colores exactos</span>
+        </div>
+        <label id="word-label" class="drop-label">
+            <input type="file" id="word-input" accept="application/pdf" class="sr-only">
+            <i class="fa-solid fa-file-word text-4xl text-blue-600 mb-3 block"></i>
+            <div class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar PDF</div>
+            <p class="text-sm text-gray-400 mt-1">o arrastra y suelta aquí</p>
+        </label>
+        <div id="word-loader" class="loader mt-6" style="border-top-color:#2563EB"></div>
+        <div id="word-status" aria-live="polite" class="mt-4 text-sm font-semibold text-blue-600 text-center"></div>
+    </div>
+</div>
+</div>
+
+<div id="pdf-to-excel" class="spa-section max-w-3xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-green-600 font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+    <div class="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10 mt-6 md:mt-0">
+        <div class="absolute -top-4 md:top-6 right-0 md:right-6 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-coins"></i> <span class="api-credits-count">Consultando...</span>
+        </div>
+
+        <h1 class="text-3xl font-black mb-1 text-center mt-6 md:mt-0">PDF a Excel</h1>
+        <p class="text-center text-gray-500 text-sm mb-2">Conversión de archivo Excel idéntico al PDF</p>
+        <div class="flex justify-center gap-3 mb-6 flex-wrap">
+            <span class="text-xs bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Celdas editables</span>
+            <span class="text-xs bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Mantiene el formato</span>
+        </div>
+        <label id="excel-label" class="drop-label">
+            <input type="file" id="excel-input" accept="application/pdf" class="sr-only">
+            <i class="fa-solid fa-file-excel text-4xl text-green-600 mb-3 block"></i>
+            <div class="bg-green-600 text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar PDF</div>
+            <p class="text-sm text-gray-400 mt-1">o arrastra y suelta aquí</p>
+        </label>
+        <div id="excel-loader" class="loader mt-6" style="border-top-color:#16A34A"></div>
+        <div id="excel-status" aria-live="polite" class="mt-4 text-sm font-semibold text-green-600 text-center"></div>
+    </div>
+</div>
+</div>
+
+<div id="merge-pdf" class="spa-section max-w-3xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-purple-600 font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
+        <h1 class="text-3xl font-black mb-1 text-center">Unir PDFs</h1>
+        <p class="text-center text-gray-500 text-sm mb-6">Selecciona varios archivos y <strong>arrastra las filas</strong> para cambiar el orden</p>
+        <label id="merge-label" class="drop-label">
+            <input type="file" id="merge-input" multiple accept="application/pdf" class="sr-only">
+            <i class="fa-solid fa-object-group text-4xl text-purple-600 mb-3 block"></i>
+            <div class="bg-purple-600 text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar PDFs</div>
+            <p class="text-sm text-gray-400 mt-1">o arrastra y suelta aquí — puedes seleccionar varios a la vez</p>
+        </label>
+        <div id="merge-info" class="hidden mt-2 text-xs text-center text-gray-400">
+            <i class="fa-solid fa-grip-lines mr-1"></i> Arrastra las filas para reordenar
+        </div>
+        <div id="merge-file-list" class="mt-4 flex flex-col gap-2"></div>
+        <div id="merge-total" class="hidden mt-3 text-xs text-gray-400 text-right"></div>
+        <button id="btn-merge" class="hidden w-full mt-5 bg-purple-600 text-white py-4 rounded-xl font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-object-group"></i> Unir Archivos Ahora
+        </button>
+    </div>
+</div>
+</div>
+
+<div id="img-to-pdf" class="spa-section max-w-3xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-yellow-500 font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
+        <h1 class="text-3xl font-black mb-1 text-center">JPG / PNG a PDF</h1>
+        <p class="text-center text-gray-500 text-sm mb-6">Cada imagen se convierte en una página del PDF</p>
+        <label id="img-label" class="drop-label">
+            <input type="file" id="img-input" multiple accept="image/png,image/jpeg" class="sr-only">
+            <i class="fa-solid fa-images text-4xl text-yellow-500 mb-3 block"></i>
+            <div class="bg-yellow-500 text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar Imágenes</div>
+            <p class="text-sm text-gray-400 mt-1">JPG o PNG — puedes seleccionar varias a la vez</p>
+        </label>
+        <div id="img-file-list" class="mt-4 flex flex-col gap-2"></div>
+        <button id="btn-img" class="hidden w-full mt-5 bg-yellow-500 text-white py-4 rounded-xl font-bold hover:bg-yellow-600 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-file-pdf"></i> Convertir a PDF Ahora
+        </button>
+    </div>
+</div>
+</div>
+
+</main>
+<script src="app.js"></script>
+</body>
+</html>
