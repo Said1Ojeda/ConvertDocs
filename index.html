@@ -27,6 +27,192 @@
         .progress-fill{height:100%;background:#E5322D;border-radius:99px;transition:width .25s;width:0%}
         .drag-item{cursor:grab;transition:opacity .2s}.drag-item.dragging{opacity:.3}
         .drag-item:hover{background:#f3f4f6}.dark .drag-item:hover{background:rgba(55,65,81,.5)}
+
+        /* ── PDF MERGER GRID ── */
+        .merge-drop-zone { border-color: #d8b4fe; }
+        .merge-drop-zone:hover, .merge-drop-zone.dragover { border-color: #9333ea; background: rgba(147,51,234,.06); }
+        .merge-drop-zone.dragover .merge-drop-icon { transform: scale(1.15) translateY(-4px); }
+
+        .pdf-card {
+            position: relative;
+            background: #fff;
+            border-radius: 16px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+            cursor: grab;
+            transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, border-color .2s, opacity .2s;
+            animation: cardIn .28s cubic-bezier(.34,1.56,.64,1) both;
+            user-select: none;
+        }
+        .dark .pdf-card { background: #1f2937; border-color: #374151; }
+        .pdf-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 32px rgba(147,51,234,.18); border-color: #c084fc; }
+        .pdf-card.dragging-card { opacity: .35; transform: scale(.96); cursor: grabbing; }
+        .pdf-card.drag-over-card { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,.25); transform: scale(1.03); }
+        @keyframes cardIn { from { opacity:0; transform: scale(.85) translateY(12px); } to { opacity:1; transform: scale(1) translateY(0); } }
+
+        .pdf-thumb-wrap {
+            aspect-ratio: 3/4;
+            background: #f3f4f6;
+            position: relative;
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .dark .pdf-thumb-wrap { background: #111827; }
+        .pdf-thumb-canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pdf-thumb-placeholder {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; color: #a78bfa; padding: 1rem;
+        }
+        .pdf-thumb-placeholder i { font-size: 2.5rem; opacity: .6; }
+
+        .pdf-card-order {
+            position: absolute; top: 8px; left: 8px;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: #9333ea; color: #fff;
+            font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,.25);
+            pointer-events: none;
+        }
+        .pdf-card-delete {
+            position: absolute; top: 8px; right: 8px;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: rgba(0,0,0,.45); color: #fff;
+            font-size: 11px;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity .18s, background .18s;
+            cursor: pointer; z-index: 10;
+            border: none;
+        }
+        .pdf-card:hover .pdf-card-delete { opacity: 1; }
+        .pdf-card-delete:hover { background: #ef4444; }
+
+        .pdf-card-footer {
+            padding: 10px 10px 10px;
+            border-top: 1px solid #f3f4f6;
+        }
+        .dark .pdf-card-footer { border-top-color: #374151; }
+        .pdf-card-name { font-size: 11px; font-weight: 600; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dark .pdf-card-name { color: #d1d5db; }
+        .pdf-card-size { font-size: 10px; color: #9ca3af; margin-top: 2px; }
+
+        .pdf-card-drag-handle {
+            position: absolute; bottom: 8px; right: 8px;
+            color: #d1d5db; font-size: 12px; pointer-events: none;
+        }
+
+        /* Active view button */
+        .merge-view-btn { color: #9ca3af; }
+        .merge-view-btn.active-view { background: white; color: #7c3aed; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+        .dark .merge-view-btn.active-view { background: #374151; color: #a78bfa; }
+
+        /* List view row */
+        .merge-list-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px; background: #fff; border-radius: 14px;
+            border: 2px solid #e5e7eb; cursor: grab;
+            transition: border-color .18s, box-shadow .18s, transform .18s, opacity .18s;
+            animation: cardIn .22s ease both;
+        }
+        .dark .merge-list-row { background: #1f2937; border-color: #374151; }
+        .merge-list-row:hover { border-color: #c084fc; box-shadow: 0 4px 14px rgba(147,51,234,.12); }
+        .merge-list-row.dragging-card { opacity: .3; }
+        .merge-list-row.drag-over-card { border-color: #9333ea; transform: scale(1.01); }
+
+        .merge-list-thumb { width: 36px; height: 48px; border-radius: 6px; background: #f3f4f6; overflow: hidden; flex-shrink: 0; }
+        .dark .merge-list-thumb { background: #111827; }
+        .merge-list-thumb canvas, .merge-list-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Sticky action bar */
+        #merge-action-bar { position: sticky; bottom: 24px; z-index: 30; }
+
+        /* ── PDF SPLITTER / EDITOR ── */
+        .split-drop-zone { border-color: #fecdd3; }
+        .split-drop-zone:hover, .split-drop-zone.dragover { border-color: #f43f5e; background: rgba(244,63,94,.05); }
+        .split-drop-zone.dragover .split-drop-icon { transform: scale(1.15) translateY(-4px); }
+
+        .split-ctrl-btn {
+            display:inline-flex; align-items:center; gap:6px;
+            background: white; border: 1.5px solid #e5e7eb; color: #6b7280;
+            font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 10px;
+            cursor: pointer; transition: all .15s; white-space: nowrap;
+        }
+        .dark .split-ctrl-btn { background: #1f2937; border-color: #374151; color: #9ca3af; }
+        .split-ctrl-btn:hover { border-color: #f43f5e; color: #f43f5e; background: #fff1f2; }
+        .dark .split-ctrl-btn:hover { background: rgba(244,63,94,.08); }
+
+        .page-card {
+            position: relative;
+            background: #fff;
+            border-radius: 14px;
+            border: 2.5px solid #e5e7eb;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .15s, opacity .2s;
+            animation: cardIn .25s cubic-bezier(.34,1.56,.64,1) both;
+            user-select: none;
+        }
+        .dark .page-card { background: #1f2937; border-color: #374151; }
+        .page-card:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 24px rgba(244,63,94,.14); border-color: #fda4af; }
+        .page-card.selected {
+            border-color: #f43f5e;
+            box-shadow: 0 0 0 3px rgba(244,63,94,.2), 0 8px 24px rgba(244,63,94,.18);
+            transform: translateY(-2px);
+        }
+        .page-card.eliminated {
+            opacity: .3;
+            filter: grayscale(1);
+            border-color: #e5e7eb !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+        .page-card.eliminated::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(239,68,68,.06) 6px, rgba(239,68,68,.06) 12px);
+            pointer-events: none;
+        }
+
+        .page-card-check {
+            position: absolute; top: 7px; left: 7px;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #f43f5e; color: #fff;
+            font-size: 10px;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transform: scale(.6);
+            transition: opacity .18s, transform .22s cubic-bezier(.34,1.56,.64,1);
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(244,63,94,.4);
+        }
+        .page-card.selected .page-card-check { opacity: 1; transform: scale(1); }
+
+        .page-card-num {
+            position: absolute; top: 7px; right: 7px;
+            min-width: 22px; height: 22px; border-radius: 11px; padding: 0 6px;
+            background: rgba(0,0,0,.45); color: #fff;
+            font-size: 10px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+        }
+        .page-card.selected .page-card-num { background: #f43f5e; }
+
+        .page-thumb-wrap {
+            aspect-ratio: 3/4;
+            background: #f9fafb;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .dark .page-thumb-wrap { background: #111827; }
+        .page-thumb-wrap img, .page-thumb-wrap canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .page-card-footer {
+            padding: 7px 8px 8px;
+            border-top: 1px solid #f3f4f6;
+            text-align: center;
+        }
+        .dark .page-card-footer { border-top-color: #374151; }
+        .page-card-footer span { font-size: 10px; font-weight: 600; color: #9ca3af; }
+        .page-card.selected .page-card-footer span { color: #f43f5e; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
@@ -80,10 +266,15 @@
             <h2 class="text-xl font-bold mb-1">Unir PDF</h2>
             <p class="text-sm text-gray-500">Combina archivos.</p>
         </div>
+        <div onclick="app.navigate('split-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-rose-500 transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-scissors text-2xl text-rose-500"></i></div>
+            <h2 class="text-xl font-bold mb-1">Editar / Separar PDF</h2>
+            <p class="text-sm text-gray-500">Elimina páginas o extrae secciones.</p>
+        </div>
         <div onclick="app.navigate('img-to-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-yellow-500 transition-all duration-300">
             <div class="w-14 h-14 rounded-full bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-images text-2xl text-yellow-500"></i></div>
             <h2 class="text-xl font-bold mb-1">JPG a PDF</h2>
-            <p class="text-sm text-gray-500">Convierte imágenes a un PDF unificado va vos.</p>
+            <p class="text-sm text-gray-500">Convierte imágenes a un PDF unificado.</p>
         </div>
     </div>
 </div>
@@ -108,6 +299,11 @@
         <div class="mt-6 text-center text-xs text-gray-400">
             Copyright - por si me quieren seguir en Git --- ><a href="https://github.com/Said1Ojeda" target="_blank" class="text-primary hover:underline">Said.Ojeda</a>
         </div>
+
+        <div class="mt-6 text-center text-xs text-gray-400">
+            <a href="https://www.convertapi.com/a" target="_blank" class="text-primary hover:underline">----</a>
+        </div>
+
     </div>
 </div>
 </div>
@@ -117,12 +313,12 @@
     <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-primary font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
         <h1 class="text-3xl font-black mb-1 text-center">Comprimir PDF</h1>
-        <p class="text-center text-gray-500 text-sm mb-6">Elige el nivel de compresión y sube tu archivo</p>
+        <p class="text-center text-gray-500 text-sm mb-6">Elija el nivel de compresión y suba su archivo</p>
         <div class="flex flex-col md:flex-row gap-3 justify-center mb-8">
             <label class="cursor-pointer flex-1">
                 <input type="radio" name="compressionLevel" value="low" class="peer sr-only">
                 <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 text-center transition">
-                    <div class="text-2xl mb-1"></div><div class="font-bold">Extrema</div><div class="text-xs text-gray-400">Menor tamaño posible</div>
+                    <div class="text-2xl mb-1"></div><div class="font-bold">Extrema</div><div class="text-xs text-gray-400">Menor tamaño posible-ojo se mira borroso</div>
                 </div>
             </label>
             <label class="cursor-pointer flex-1">
@@ -134,7 +330,7 @@
             <label class="cursor-pointer flex-1">
                 <input type="radio" name="compressionLevel" value="high" class="peer sr-only">
                 <div class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 peer-checked:border-primary peer-checked:bg-red-50 dark:peer-checked:bg-red-900/20 text-center transition">
-                    <div class="text-2xl mb-1"></div><div class="font-bold">Alta Calidad</div><div class="text-xs text-gray-400">Mayor mejora visual</div>
+                    <div class="text-2xl mb-1"></div><div class="font-bold">Alta Calidad</div><div class="text-xs text-gray-400">Mayor mejora visual-pero nomas le baja como un mega</div>
                 </div>
             </label>
         </div>
@@ -204,26 +400,214 @@
 </div>
 </div>
 
-<div id="merge-pdf" class="spa-section max-w-3xl mx-auto" tabindex="-1">
+<div id="merge-pdf" class="spa-section max-w-5xl mx-auto" tabindex="-1">
 <div class="animate__animated animate__fadeInUp">
-    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-purple-600 font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
-        <h1 class="text-3xl font-black mb-1 text-center">Unir PDFs</h1>
-        <p class="text-center text-gray-500 text-sm mb-6">Selecciona varios archivos y <strong>arrastra las filas</strong> para cambiar el orden</p>
-        <label id="merge-label" class="drop-label">
-            <input type="file" id="merge-input" multiple accept="application/pdf" class="sr-only">
-            <i class="fa-solid fa-object-group text-4xl text-purple-600 mb-3 block"></i>
-            <div class="bg-purple-600 text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar PDFs</div>
-            <p class="text-sm text-gray-400 mt-1">o arrastra y suelta aquí — puedes seleccionar varios a la vez</p>
-        </label>
-        <div id="merge-info" class="hidden mt-2 text-xs text-center text-gray-400">
-            <i class="fa-solid fa-grip-lines mr-1"></i> Arrastra las filas para reordenar
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-purple-600 font-semibold flex items-center gap-2 transition">
+        <i class="fa-solid fa-arrow-left"></i> Atrás
+    </button>
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-900/30 mb-4">
+            <i class="fa-solid fa-layer-group text-3xl text-purple-600"></i>
         </div>
-        <div id="merge-file-list" class="mt-4 flex flex-col gap-2"></div>
-        <div id="merge-total" class="hidden mt-3 text-xs text-gray-400 text-right"></div>
-        <button id="btn-merge" class="hidden w-full mt-5 bg-purple-600 text-white py-4 rounded-xl font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-object-group"></i> Unir Archivos Ahora
-        </button>
+        <h1 class="text-4xl font-black mb-2">Unir PDFs</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Arrastra tus archivos, reordénalos y únelos en un solo PDF</p>
+    </div>
+
+    <!-- Drop Zone -->
+    <label id="merge-label" class="drop-label merge-drop-zone" id="merge-dropzone">
+        <input type="file" id="merge-input" multiple accept="application/pdf" class="sr-only">
+        <div class="flex flex-col items-center pointer-events-none">
+            <div class="merge-drop-icon w-20 h-20 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center mb-4 transition-transform duration-300">
+                <i class="fa-solid fa-cloud-arrow-up text-4xl text-purple-500"></i>
+            </div>
+            <p class="text-lg font-bold text-gray-700 dark:text-gray-200 mb-1">Suelta tus PDFs aquí</p>
+            <p class="text-sm text-gray-400 mb-4">o haz clic para seleccionarlos</p>
+            <div class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full inline-block transition-all duration-200 pointer-events-auto shadow-lg shadow-purple-200 dark:shadow-purple-900/40">
+                <i class="fa-solid fa-folder-open mr-2"></i>Seleccionar PDFs
+            </div>
+        </div>
+    </label>
+
+    <!-- Toolbar (visible when files loaded) -->
+    <div id="merge-toolbar" class="hidden mt-6 flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+            <span id="merge-count-badge" class="inline-flex items-center gap-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-bold px-4 py-2 rounded-full">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span id="merge-file-count">0 archivos</span>
+            </span>
+            <span id="merge-size-badge" class="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2 rounded-full">
+                <i class="fa-solid fa-weight-hanging"></i>
+                <span id="merge-total-size">0 KB</span>
+            </span>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- View toggle -->
+            <div class="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1 gap-1">
+                <button id="view-grid-btn" onclick="app.setMergeView('grid')" title="Vista cuadrícula"
+                    class="merge-view-btn active-view w-9 h-9 rounded-lg flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-grip text-sm"></i>
+                </button>
+                <button id="view-list-btn" onclick="app.setMergeView('list')" title="Vista lista"
+                    class="merge-view-btn w-9 h-9 rounded-lg flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-list text-sm"></i>
+                </button>
+            </div>
+            <label for="merge-input-add" class="cursor-pointer flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 text-sm font-semibold px-4 py-2 rounded-xl hover:border-purple-400 hover:text-purple-600 transition-all">
+                <i class="fa-solid fa-plus"></i> Añadir más
+            </label>
+            <input type="file" id="merge-input-add" multiple accept="application/pdf" class="sr-only">
+        </div>
+    </div>
+
+    <!-- Drag hint -->
+    <div id="merge-drag-hint" class="hidden mt-3 text-center">
+        <span class="inline-flex items-center gap-2 text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-full border border-dashed border-gray-200 dark:border-gray-700">
+            <i class="fa-solid fa-arrows-up-down-left-right"></i>
+            Arrastra las miniaturas para cambiar el orden
+        </span>
+    </div>
+
+    <!-- Grid View -->
+    <div id="merge-grid" class="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+
+    <!-- List View (hidden by default) -->
+    <div id="merge-list-view" class="hidden mt-6 flex flex-col gap-2"></div>
+
+    <!-- Merge Button -->
+    <div id="merge-action-bar" class="hidden mt-8 sticky bottom-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl shadow-purple-200/50 dark:shadow-purple-900/30 border border-purple-100 dark:border-purple-900/50 p-4 flex items-center gap-4 flex-wrap">
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-200">Listo para unir</p>
+                <p id="merge-action-summary" class="text-xs text-gray-400 truncate">0 archivos seleccionados</p>
+            </div>
+            <button id="btn-merge" class="flex-shrink-0 bg-gradient-to-r from-purple-600 to-violet-600 text-white py-3 px-8 rounded-xl font-bold hover:from-purple-700 hover:to-violet-700 transition-all duration-200 flex items-center gap-2 shadow-lg shadow-purple-300/50 dark:shadow-purple-900/50 active:scale-95">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Unir PDFs</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Progress bar for merge -->
+    <div id="merge-progress-wrap" class="progress-wrap mt-4"></div>
+    <div class="progress-fill" id="merge-progress-fill"></div>
+</div>
+</div>
+
+<div id="split-pdf" class="spa-section max-w-6xl mx-auto" tabindex="-1">
+<div class="animate__animated animate__fadeInUp">
+    <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-rose-500 font-semibold flex items-center gap-2 transition">
+        <i class="fa-solid fa-arrow-left"></i> Atrás
+    </button>
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-100 dark:bg-rose-900/30 mb-4">
+            <i class="fa-solid fa-scissors text-3xl text-rose-500"></i>
+        </div>
+        <h1 class="text-4xl font-black mb-2">Editar &amp; Separar PDF</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Carga un PDF, selecciona las páginas que quieres conservar o eliminar, y descarga el resultado</p>
+    </div>
+
+    <!-- Drop Zone (shown when no file loaded) -->
+    <label id="split-label" class="drop-label split-drop-zone">
+        <input type="file" id="split-input" accept="application/pdf" class="sr-only">
+        <div class="flex flex-col items-center pointer-events-none">
+            <div class="split-drop-icon w-20 h-20 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-4 transition-transform duration-300">
+                <i class="fa-solid fa-cloud-arrow-up text-4xl text-rose-400"></i>
+            </div>
+            <p class="text-lg font-bold text-gray-700 dark:text-gray-200 mb-1">Suelta tu PDF aquí</p>
+            <p class="text-sm text-gray-400 mb-4">o haz clic para seleccionarlo</p>
+            <div class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-full inline-block transition-all duration-200 pointer-events-auto shadow-lg shadow-rose-200 dark:shadow-rose-900/40">
+                <i class="fa-solid fa-folder-open mr-2"></i>Seleccionar PDF
+            </div>
+        </div>
+    </label>
+
+    <!-- Loading skeleton while rendering thumbs -->
+    <div id="split-loading" class="hidden text-center py-16">
+        <div class="inline-flex flex-col items-center gap-4">
+            <div class="w-12 h-12 rounded-full border-4 border-rose-200 border-t-rose-500 animate-spin"></div>
+            <p class="text-sm font-semibold text-gray-500" id="split-loading-text">Renderizando páginas...</p>
+        </div>
+    </div>
+
+    <!-- Editor area (hidden until file loaded) -->
+    <div id="split-editor" class="hidden">
+
+        <!-- File info bar -->
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-file-pdf text-rose-500"></i>
+                </div>
+                <div class="min-w-0">
+                    <p id="split-filename" class="text-sm font-bold text-gray-800 dark:text-gray-100 truncate max-w-xs"></p>
+                    <p id="split-filemeta" class="text-xs text-gray-400"></p>
+                </div>
+            </div>
+            <label for="split-input-replace" class="cursor-pointer flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-rose-500 transition px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-rose-300">
+                <i class="fa-solid fa-arrow-rotate-left"></i> Cambiar archivo
+            </label>
+            <input type="file" id="split-input-replace" accept="application/pdf" class="sr-only">
+        </div>
+
+        <!-- Selection toolbar -->
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span id="split-sel-badge" class="inline-flex items-center gap-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 text-sm font-bold px-4 py-2 rounded-full">
+                    <i class="fa-regular fa-square-check"></i>
+                    <span id="split-sel-count">0 seleccionadas</span>
+                </span>
+                <span id="split-total-badge" class="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-500 text-sm font-medium px-4 py-2 rounded-full">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span id="split-total-pages">0 páginas</span>
+                </span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="app.splitSelectAll()" class="split-ctrl-btn">
+                    <i class="fa-solid fa-check-double"></i> Seleccionar todo
+                </button>
+                <button onclick="app.splitSelectNone()" class="split-ctrl-btn">
+                    <i class="fa-regular fa-square"></i> Deseleccionar
+                </button>
+                <button onclick="app.splitInvertSelection()" class="split-ctrl-btn">
+                    <i class="fa-solid fa-shuffle"></i> Invertir
+                </button>
+            </div>
+        </div>
+
+        <!-- Selection hint -->
+        <div class="mb-4 text-center">
+            <span class="inline-flex items-center gap-2 text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-full border border-dashed border-gray-200 dark:border-gray-700">
+                <i class="fa-solid fa-hand-pointer"></i>
+                Haz clic en las páginas para seleccionarlas ----  las paginas seleccionadas se incluirán en el PDF
+                si quieres solo una pagina le puedes dar eliminar seleccion y las hojas que no estan seleccionadas se agregaran al PFD 
+            </span>
+        </div>
+
+        <!-- Page grid -->
+        <div id="split-page-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"></div>
+
+    </div>
+
+    <!-- Sticky action bar -->
+    <div id="split-action-bar" class="hidden mt-8" style="position:sticky;bottom:24px;z-index:30">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl shadow-rose-200/50 dark:shadow-rose-900/30 border border-rose-100 dark:border-rose-900/50 p-4 flex items-center gap-4 flex-wrap">
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-gray-700 dark:text-gray-200">Listo para exportar</p>
+                <p id="split-action-summary" class="text-xs text-gray-400">Selecciona páginas para continuar</p>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <button id="btn-split-delete" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-3 px-5 rounded-xl font-bold hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95 text-sm">
+                    <i class="fa-solid fa-trash"></i> Eliminar selección
+                </button>
+                <button id="btn-split-extract" class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white py-3 px-6 rounded-xl font-bold hover:from-rose-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-rose-300/50 dark:shadow-rose-900/50 active:scale-95">
+                    <i class="fa-solid fa-file-export"></i> <span id="btn-split-extract-label">Extraer selección</span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 </div>
@@ -252,3 +636,6 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+
+Sof- 2026
