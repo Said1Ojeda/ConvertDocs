@@ -196,3 +196,7 @@
 .dark .page-card-footer { border-top-color: #374151; }
 .page-card-footer span { font-size: 10px; font-weight: 600; color: #9ca3af; }
 .page-card.selected .page-card-footer span { color: #f43f5e; }
+
+/* en word el boton activo va azul, no morado como en unir */
+[data-word-mode].active-view { color: #2563eb; }
+.dark [data-word-mode].active-view { color: #60a5fa; }

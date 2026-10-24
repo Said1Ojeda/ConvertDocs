@@ -40,7 +40,7 @@
 <div class="animate__animated animate__fadeInUp">
     <div class="text-center max-w-2xl mx-auto mb-14">
         <h1 class="text-5xl font-black mb-4">Tus PDFs, sin subirlos a ningún lado</h1>
-        <p class="text-gray-500 dark:text-gray-400">Comprime, une, separa y convierte documentos desde el navegador. Los archivos no salen de tu compu, salvo PDF a Word y Excel con ConvertAPI.</p>
+        <p class="text-gray-500 dark:text-gray-400">Comprime, une, separa y convierte documentos desde el navegador. Los archivos no salen de tu compu, salvo cuando usas ConvertAPI.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
         <div onclick="app.navigate('compress-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-primary transition-all duration-300">
@@ -51,7 +51,7 @@
         <div onclick="app.navigate('pdf-to-word')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-blue-500 transition-all duration-300">
             <div class="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-word text-2xl text-blue-600"></i></div>
             <h2 class="text-xl font-bold mb-1">PDF a Word</h2>
-            <p class="text-sm text-gray-500">Extrae texto conservando diseño, tablas y colores.</p>
+            <p class="text-sm text-gray-500">Sin internet, y también lee PDFs escaneados con OCR.</p>
         </div>
         <div onclick="app.navigate('pdf-to-excel')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-green-500 transition-all duration-300">
             <div class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-file-excel text-2xl text-green-600"></i></div>
@@ -148,17 +148,40 @@
 <div id="pdf-to-word" class="spa-section max-w-3xl mx-auto" tabindex="-1">
 <div class="animate__animated animate__fadeInUp">
     <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-blue-600 font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-    <div class="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10 mt-6 md:mt-0">
-        <div class="absolute -top-4 md:top-6 right-0 md:right-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-bold px-4 py-2 rounded-full flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-coins"></i> <span class="api-credits-count">Consultando...</span>
+    <div class="relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
+        <h1 class="text-3xl font-black mb-1 text-center">PDF a Word</h1>
+        <p class="text-center text-gray-500 text-sm mb-5">Escoge cómo quieres convertirlo</p>
+
+        <div class="flex justify-center mb-6">
+            <div class="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1 gap-1">
+                <button type="button" data-word-mode="local" onclick="app.setWordMode('local')" class="merge-view-btn active-view px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-laptop mr-1"></i> Sin internet
+                </button>
+                <button type="button" data-word-mode="api" onclick="app.setWordMode('api')" class="merge-view-btn px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all">
+                    <i class="fa-solid fa-cloud mr-1"></i> ConvertAPI
+                </button>
+            </div>
         </div>
 
-        <h1 class="text-3xl font-black mb-1 text-center mt-6 md:mt-0">PDF a Word</h1>
-        <p class="text-center text-gray-500 text-sm mb-2">Conversión tuanis con ConvertAPI (necesita internet)</p>
-        <div class="flex justify-center gap-3 mb-6 flex-wrap">
-            <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Tablas</span>
-            <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Imágenes</span>
-            <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Colores exactos</span>
+        <div id="word-local-info" class="text-center mb-6">
+            <p class="text-sm text-gray-500 mb-3">Saca todo el texto del PDF sin conexión. Si la página es escaneada la lee con OCR.</p>
+            <div class="flex justify-center gap-3 flex-wrap">
+                <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>PDFs escaneados</span>
+                <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>No sale de tu compu</span>
+                <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-xmark mr-1"></i>Sin tablas ni formato</span>
+            </div>
+        </div>
+
+        <div id="word-api-info" class="hidden text-center mb-6">
+            <div class="inline-flex bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-bold px-4 py-2 rounded-full items-center gap-2 mb-3">
+                <i class="fa-solid fa-coins"></i> <span class="api-credits-count">Consultando...</span>
+            </div>
+            <p class="text-sm text-gray-500 mb-3">Conversión tuanis con ConvertAPI, necesita internet y clave.</p>
+            <div class="flex justify-center gap-3 flex-wrap">
+                <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Tablas</span>
+                <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Imágenes</span>
+                <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Colores exactos</span>
+            </div>
         </div>
         <label id="word-label" class="drop-label">
             <input type="file" id="word-input" accept="application/pdf" class="sr-only">
@@ -166,6 +189,7 @@
             <div class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full inline-block mb-2">Seleccionar PDF</div>
             <p class="text-sm text-gray-400 mt-1">o arrastra y suelta aquí</p>
         </label>
+        <div class="progress-wrap" id="word-pw"><div class="progress-fill" id="word-pf" style="background:#2563EB"></div></div>
         <div id="word-loader" class="loader mt-6" style="border-top-color:#2563EB"></div>
         <div id="word-status" aria-live="polite" class="mt-4 text-sm font-semibold text-blue-600 text-center"></div>
     </div>
@@ -417,6 +441,8 @@
 <script src="js/app.js"></script>
 <script src="js/comprimir.js"></script>
 <script src="js/convertapi.js"></script>
+<script src="js/docx.js"></script>
+<script src="js/word-local.js"></script>
 <script src="js/unir.js"></script>
 <script src="js/separar.js"></script>
 <script src="js/imagenes.js"></script>

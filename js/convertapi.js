@@ -44,7 +44,8 @@ Object.assign(app, {
         ['word', 'excel'].forEach(tipo => {
             document.getElementById(`${tipo}-input`).addEventListener('change', async (e) => {
                 const file = this.getFiles(e)?.[0];
-                if (file) await this.convertirConApi(file, tipo);
+                if (file && tipo === 'word' && this.wordMode === 'local') await this.wordLocal(file);
+                else if (file) await this.convertirConApi(file, tipo);
                 e.target.value = '';
             });
         });
