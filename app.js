@@ -1,4 +1,5 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// el worker va local, en el server no hay internet para jalarlo del cdn
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs/pdf.worker.js';
 
 const app = {
     // 
@@ -7,14 +8,15 @@ const app = {
     mergeFiles: [],
     imgFiles: [],
     
-    // Default fallback API Key
-    DEFAULT_API_KEY: '',
-
-     
-    // GESTION DE API KEY Y CREDITOS
-    
+    // la clave ya no va en el codigo, sale del navegador o de config.local.js si existe
     getApiKey() {
-        return localStorage.getItem('convertapiKey') || this.DEFAULT_API_KEY;
+        return localStorage.getItem('convertapiKey') || window.CONVERTDOCS_API_KEY || '';
+    },
+
+    clearApiKey() {
+        localStorage.removeItem('convertapiKey');
+        this.toast('Clave borrada de este navegador', 'info');
+        this.checkCredits();
     },
 
     saveApiKey() {
@@ -29,6 +31,13 @@ const app = {
         } else {
             this.toast('Ingresa una clave válida', 'error');
         }
+    },
+
+    needApiKey() {
+        if (this.getApiKey()) return true;
+        this.toast('Primero pon tu clave de ConvertAPI', 'error');
+        setTimeout(() => this.navigate('config-api'), 800);
+        return false;
     },
 
     trackLocalConversion() {
@@ -52,7 +61,15 @@ const app = {
     checkCredits() {
         const key = this.getApiKey();
         const localCount = this.getLocalConversions();
-        
+
+        if (!key) {
+            document.querySelectorAll('.api-credits-count').forEach(el => {
+                el.innerText = 'Sin clave, ponla en el engrane';
+                el.classList.add('text-red-500');
+            });
+            return;
+        }
+
         fetch(`https://v2.convertapi.com/user?Secret=${key}`)
             .then(res => res.json())
             .then(data => {
@@ -68,7 +85,7 @@ const app = {
             })
             .catch(() => {
                 document.querySelectorAll('.api-credits-count').forEach(el => {
-                    el.innerText = 'Clave inválida o caducada';
+                    el.innerText = navigator.onLine ? 'Clave inválida o caducada' : 'Sin internet';
                     el.classList.add('text-red-500');
                 });
             });
@@ -250,6 +267,7 @@ const app = {
 
             const loader = document.getElementById('word-loader');
             const status = document.getElementById('word-status');
+            if (!this.needApiKey()) { e.target.value = ''; return; }
             loader.style.display = 'block';
             status.innerText = 'Convirtiendo en el servidor...';
 
@@ -290,6 +308,7 @@ const app = {
 
             const loader = document.getElementById('excel-loader');
             const status = document.getElementById('excel-status');
+            if (!this.needApiKey()) { e.target.value = ''; return; }
             loader.style.display = 'block';
             status.innerText = 'Convirtiendo en el servidor para mantener el formato exacto...';
 

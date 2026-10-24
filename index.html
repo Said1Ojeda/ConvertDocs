@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRSP-CONVERT</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{primary:'#E5322D'}}}}</script>
+    <title>ConvertDocs</title>
+    <link rel="stylesheet" href="css/tailwind.css">
+    <link rel="stylesheet" href="vendor/animate.min.css">
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="vendor/pdfjs/pdf.js"></script>
+    <script src="vendor/jspdf.umd.min.js"></script>
     <style>
         .spa-section{display:none}
         .spa-section:focus {outline: none;}
@@ -224,7 +223,7 @@
             <div class="bg-primary text-white p-2 rounded-lg group-hover:rotate-12 transition-transform">
                 <i class="fa-solid fa-file-pdf text-xl"></i>
             </div>
-            <span class="text-2xl font-black tracking-tight">DRSP<span class="text-primary">GRH</span></span>
+            <span class="text-2xl font-black tracking-tight">Convert<span class="text-primary">Docs</span></span>
         </div>
         <div class="flex items-center space-x-4">
             <button onclick="app.navigate('config-api')" title="Configurar API Key" class="text-gray-500 hover:text-primary transition focus-visible:ring-2 focus-visible:ring-primary rounded">
@@ -242,8 +241,8 @@
 <div id="home" class="spa-section" style="display:block" tabindex="-1" role="region" aria-label="Inicio">
 <div class="animate__animated animate__fadeInUp">
     <div class="text-center max-w-2xl mx-auto mb-14">
-        <h1 class="text-5xl font-black mb-4">CONVERT - DRSP<br>RECLUTAMIENTO Y SELECCIÓN DE PERSONAL</h1>
-        <p class="text-gray-500 dark:text-gray-400">Ahora sí, podemos convertir documentos sin que los seeeeeñores de informática nos bloqueen</p>
+        <h1 class="text-5xl font-black mb-4">Tus PDFs, sin subirlos a ningún lado</h1>
+        <p class="text-gray-500 dark:text-gray-400">Comprime, une, separa y convierte documentos desde el navegador. Los archivos no salen de tu compu, salvo PDF a Word y Excel con ConvertAPI.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
         <div onclick="app.navigate('compress-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-primary transition-all duration-300">
@@ -285,23 +284,24 @@
     <button onclick="app.navigate('home')" class="mb-6 text-gray-500 hover:text-primary font-semibold flex items-center gap-2 transition"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
     <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-10">
         <h1 class="text-3xl font-black mb-2 text-center">Configuración de API</h1>
-        <p class="text-center text-gray-500 text-sm mb-8">NO INGRESAR NADAAA.</p>
+        <p class="text-center text-gray-500 text-sm mb-8">Solo se usa para PDF a Word y PDF a Excel. La clave se guarda en este navegador y no se sube a ningún lado.</p>
         
         <div class="mb-6">
             <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Clave Secreta</label>
-            <input type="text" id="api-key-input" placeholder="Ej: nP8QrbnS5EKvSBIpS2E1..." class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition font-mono">
+            <input type="text" id="api-key-input" placeholder="Pega aquí tu Secret de ConvertAPI" autocomplete="off" class="w-full border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary transition font-mono">
         </div>
         
         <button onclick="app.saveApiKey()" class="w-full bg-gray-800 dark:bg-gray-700 text-white py-4 rounded-xl font-bold hover:bg-black dark:hover:bg-gray-600 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-floppy-disk"></i> Guardar Clave
         </button>
         
-        <div class="mt-6 text-center text-xs text-gray-400">
-            Copyright - por si me quieren seguir en Git --- ><a href="https://github.com/Said1Ojeda" target="_blank" class="text-primary hover:underline">Said.Ojeda</a>
-        </div>
+        <button onclick="app.clearApiKey()" class="w-full mt-3 text-sm text-gray-500 hover:text-primary transition">Borrar clave guardada</button>
 
         <div class="mt-6 text-center text-xs text-gray-400">
-            <a href="https://www.convertapi.com/a" target="_blank" class="text-primary hover:underline">----</a>
+            ¿No tienes clave? Se saca gratis en <a href="https://www.convertapi.com/a" target="_blank" rel="noopener" class="text-primary hover:underline">convertapi.com</a>
+        </div>
+        <div class="mt-2 text-center text-xs text-gray-400">
+            Hecho por <a href="https://github.com/Said1Ojeda" target="_blank" rel="noopener" class="text-primary hover:underline">Said Ojeda</a>
         </div>
 
     </div>
@@ -356,7 +356,7 @@
         </div>
 
         <h1 class="text-3xl font-black mb-1 text-center mt-6 md:mt-0">PDF a Word</h1>
-        <p class="text-center text-gray-500 text-sm mb-2">Conversión Tuanis</p>
+        <p class="text-center text-gray-500 text-sm mb-2">Conversión tuanis con ConvertAPI (necesita internet)</p>
         <div class="flex justify-center gap-3 mb-6 flex-wrap">
             <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Tablas</span>
             <span class="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Imágenes</span>
@@ -383,7 +383,7 @@
         </div>
 
         <h1 class="text-3xl font-black mb-1 text-center mt-6 md:mt-0">PDF a Excel</h1>
-        <p class="text-center text-gray-500 text-sm mb-2">Conversión de archivo Excel idéntico al PDF</p>
+        <p class="text-center text-gray-500 text-sm mb-2">Excel idéntico al PDF con ConvertAPI (necesita internet)</p>
         <div class="flex justify-center gap-3 mb-6 flex-wrap">
             <span class="text-xs bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Celdas editables</span>
             <span class="text-xs bg-green-50 dark:bg-green-900/20 text-green-600 px-3 py-1 rounded-full font-semibold"><i class="fa-solid fa-check mr-1"></i>Mantiene el formato</span>
@@ -633,9 +633,7 @@
 </div>
 
 </main>
+<script src="config.local.js" onerror="this.remove()"></script>
 <script src="app.js"></script>
 </body>
 </html>
-
-
-Sof- 2026
