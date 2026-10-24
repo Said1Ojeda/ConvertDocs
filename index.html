@@ -10,209 +10,7 @@
     <script src="vendor/pdf-lib.min.js"></script>
     <script src="vendor/pdfjs/pdf.js"></script>
     <script src="vendor/jspdf.umd.min.js"></script>
-    <style>
-        .spa-section{display:none}
-        .spa-section:focus {outline: none;}
-        .drop-label{display:block;border:2px dashed #cbd5e1;border-radius:1rem;padding:3rem;cursor:pointer;transition:all .3s ease;background:#f9fafb;text-align:center}
-        .drop-label:hover,.drop-label.dragover{border-color:#E5322D;background:rgba(229,50,45,.05);transform:scale(1.01)}
-        .dark .drop-label{background:rgba(17,24,39,.5)}
-        .loader{border:4px solid #f3f3f3;border-top:4px solid #E5322D;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto;display:none}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
-        .toast{padding:14px 20px;border-radius:12px;color:#fff;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.15);animation:slideIn .3s ease;display:flex;align-items:center;gap:10px;max-width:340px}
-        .toast.success{background:#16a34a}.toast.error{background:#E5322D}.toast.info{background:#2563eb}
-        @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
-        .progress-wrap{width:100%;background:#e5e7eb;border-radius:99px;height:8px;margin-top:14px;overflow:hidden;display:none}
-        .progress-fill{height:100%;background:#E5322D;border-radius:99px;transition:width .25s;width:0%}
-        .drag-item{cursor:grab;transition:opacity .2s}.drag-item.dragging{opacity:.3}
-        .drag-item:hover{background:#f3f4f6}.dark .drag-item:hover{background:rgba(55,65,81,.5)}
-
-        /* ── PDF MERGER GRID ── */
-        .merge-drop-zone { border-color: #d8b4fe; }
-        .merge-drop-zone:hover, .merge-drop-zone.dragover { border-color: #9333ea; background: rgba(147,51,234,.06); }
-        .merge-drop-zone.dragover .merge-drop-icon { transform: scale(1.15) translateY(-4px); }
-
-        .pdf-card {
-            position: relative;
-            background: #fff;
-            border-radius: 16px;
-            border: 2px solid #e5e7eb;
-            overflow: hidden;
-            cursor: grab;
-            transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, border-color .2s, opacity .2s;
-            animation: cardIn .28s cubic-bezier(.34,1.56,.64,1) both;
-            user-select: none;
-        }
-        .dark .pdf-card { background: #1f2937; border-color: #374151; }
-        .pdf-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 32px rgba(147,51,234,.18); border-color: #c084fc; }
-        .pdf-card.dragging-card { opacity: .35; transform: scale(.96); cursor: grabbing; }
-        .pdf-card.drag-over-card { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,.25); transform: scale(1.03); }
-        @keyframes cardIn { from { opacity:0; transform: scale(.85) translateY(12px); } to { opacity:1; transform: scale(1) translateY(0); } }
-
-        .pdf-thumb-wrap {
-            aspect-ratio: 3/4;
-            background: #f3f4f6;
-            position: relative;
-            overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .dark .pdf-thumb-wrap { background: #111827; }
-        .pdf-thumb-canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .pdf-thumb-placeholder {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 8px; color: #a78bfa; padding: 1rem;
-        }
-        .pdf-thumb-placeholder i { font-size: 2.5rem; opacity: .6; }
-
-        .pdf-card-order {
-            position: absolute; top: 8px; left: 8px;
-            width: 26px; height: 26px; border-radius: 50%;
-            background: #9333ea; color: #fff;
-            font-size: 11px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,.25);
-            pointer-events: none;
-        }
-        .pdf-card-delete {
-            position: absolute; top: 8px; right: 8px;
-            width: 26px; height: 26px; border-radius: 50%;
-            background: rgba(0,0,0,.45); color: #fff;
-            font-size: 11px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity .18s, background .18s;
-            cursor: pointer; z-index: 10;
-            border: none;
-        }
-        .pdf-card:hover .pdf-card-delete { opacity: 1; }
-        .pdf-card-delete:hover { background: #ef4444; }
-
-        .pdf-card-footer {
-            padding: 10px 10px 10px;
-            border-top: 1px solid #f3f4f6;
-        }
-        .dark .pdf-card-footer { border-top-color: #374151; }
-        .pdf-card-name { font-size: 11px; font-weight: 600; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .dark .pdf-card-name { color: #d1d5db; }
-        .pdf-card-size { font-size: 10px; color: #9ca3af; margin-top: 2px; }
-
-        .pdf-card-drag-handle {
-            position: absolute; bottom: 8px; right: 8px;
-            color: #d1d5db; font-size: 12px; pointer-events: none;
-        }
-
-        /* Active view button */
-        .merge-view-btn { color: #9ca3af; }
-        .merge-view-btn.active-view { background: white; color: #7c3aed; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-        .dark .merge-view-btn.active-view { background: #374151; color: #a78bfa; }
-
-        /* List view row */
-        .merge-list-row {
-            display: flex; align-items: center; gap: 12px;
-            padding: 10px 14px; background: #fff; border-radius: 14px;
-            border: 2px solid #e5e7eb; cursor: grab;
-            transition: border-color .18s, box-shadow .18s, transform .18s, opacity .18s;
-            animation: cardIn .22s ease both;
-        }
-        .dark .merge-list-row { background: #1f2937; border-color: #374151; }
-        .merge-list-row:hover { border-color: #c084fc; box-shadow: 0 4px 14px rgba(147,51,234,.12); }
-        .merge-list-row.dragging-card { opacity: .3; }
-        .merge-list-row.drag-over-card { border-color: #9333ea; transform: scale(1.01); }
-
-        .merge-list-thumb { width: 36px; height: 48px; border-radius: 6px; background: #f3f4f6; overflow: hidden; flex-shrink: 0; }
-        .dark .merge-list-thumb { background: #111827; }
-        .merge-list-thumb canvas, .merge-list-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Sticky action bar */
-        #merge-action-bar { position: sticky; bottom: 24px; z-index: 30; }
-
-        /* ── PDF SPLITTER / EDITOR ── */
-        .split-drop-zone { border-color: #fecdd3; }
-        .split-drop-zone:hover, .split-drop-zone.dragover { border-color: #f43f5e; background: rgba(244,63,94,.05); }
-        .split-drop-zone.dragover .split-drop-icon { transform: scale(1.15) translateY(-4px); }
-
-        .split-ctrl-btn {
-            display:inline-flex; align-items:center; gap:6px;
-            background: white; border: 1.5px solid #e5e7eb; color: #6b7280;
-            font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 10px;
-            cursor: pointer; transition: all .15s; white-space: nowrap;
-        }
-        .dark .split-ctrl-btn { background: #1f2937; border-color: #374151; color: #9ca3af; }
-        .split-ctrl-btn:hover { border-color: #f43f5e; color: #f43f5e; background: #fff1f2; }
-        .dark .split-ctrl-btn:hover { background: rgba(244,63,94,.08); }
-
-        .page-card {
-            position: relative;
-            background: #fff;
-            border-radius: 14px;
-            border: 2.5px solid #e5e7eb;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .15s, opacity .2s;
-            animation: cardIn .25s cubic-bezier(.34,1.56,.64,1) both;
-            user-select: none;
-        }
-        .dark .page-card { background: #1f2937; border-color: #374151; }
-        .page-card:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 24px rgba(244,63,94,.14); border-color: #fda4af; }
-        .page-card.selected {
-            border-color: #f43f5e;
-            box-shadow: 0 0 0 3px rgba(244,63,94,.2), 0 8px 24px rgba(244,63,94,.18);
-            transform: translateY(-2px);
-        }
-        .page-card.eliminated {
-            opacity: .3;
-            filter: grayscale(1);
-            border-color: #e5e7eb !important;
-            box-shadow: none !important;
-            transform: none !important;
-        }
-        .page-card.eliminated::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(239,68,68,.06) 6px, rgba(239,68,68,.06) 12px);
-            pointer-events: none;
-        }
-
-        .page-card-check {
-            position: absolute; top: 7px; left: 7px;
-            width: 22px; height: 22px; border-radius: 50%;
-            background: #f43f5e; color: #fff;
-            font-size: 10px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transform: scale(.6);
-            transition: opacity .18s, transform .22s cubic-bezier(.34,1.56,.64,1);
-            pointer-events: none;
-            box-shadow: 0 2px 8px rgba(244,63,94,.4);
-        }
-        .page-card.selected .page-card-check { opacity: 1; transform: scale(1); }
-
-        .page-card-num {
-            position: absolute; top: 7px; right: 7px;
-            min-width: 22px; height: 22px; border-radius: 11px; padding: 0 6px;
-            background: rgba(0,0,0,.45); color: #fff;
-            font-size: 10px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            pointer-events: none;
-        }
-        .page-card.selected .page-card-num { background: #f43f5e; }
-
-        .page-thumb-wrap {
-            aspect-ratio: 3/4;
-            background: #f9fafb;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-        .dark .page-thumb-wrap { background: #111827; }
-        .page-thumb-wrap img, .page-thumb-wrap canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-        .page-card-footer {
-            padding: 7px 8px 8px;
-            border-top: 1px solid #f3f4f6;
-            text-align: center;
-        }
-        .dark .page-card-footer { border-top-color: #374151; }
-        .page-card-footer span { font-size: 10px; font-weight: 600; color: #9ca3af; }
-        .page-card.selected .page-card-footer span { color: #f43f5e; }
-    </style>
+    <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
 <div id="toast-container" aria-live="polite"></div>
@@ -406,7 +204,6 @@
         <i class="fa-solid fa-arrow-left"></i> Atrás
     </button>
 
-    <!-- Header -->
     <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-900/30 mb-4">
             <i class="fa-solid fa-layer-group text-3xl text-purple-600"></i>
@@ -415,8 +212,7 @@
         <p class="text-gray-500 dark:text-gray-400 text-sm">Arrastra tus archivos, reordénalos y únelos en un solo PDF</p>
     </div>
 
-    <!-- Drop Zone -->
-    <label id="merge-label" class="drop-label merge-drop-zone" id="merge-dropzone">
+    <label id="merge-label" class="drop-label merge-drop-zone">
         <input type="file" id="merge-input" multiple accept="application/pdf" class="sr-only">
         <div class="flex flex-col items-center pointer-events-none">
             <div class="merge-drop-icon w-20 h-20 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center mb-4 transition-transform duration-300">
@@ -430,7 +226,6 @@
         </div>
     </label>
 
-    <!-- Toolbar (visible when files loaded) -->
     <div id="merge-toolbar" class="hidden mt-6 flex items-center justify-between flex-wrap gap-3">
         <div class="flex items-center gap-3">
             <span id="merge-count-badge" class="inline-flex items-center gap-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-bold px-4 py-2 rounded-full">
@@ -443,7 +238,6 @@
             </span>
         </div>
         <div class="flex items-center gap-2">
-            <!-- View toggle -->
             <div class="flex bg-gray-100 dark:bg-gray-700 rounded-xl p-1 gap-1">
                 <button id="view-grid-btn" onclick="app.setMergeView('grid')" title="Vista cuadrícula"
                     class="merge-view-btn active-view w-9 h-9 rounded-lg flex items-center justify-center transition-all">
@@ -461,7 +255,6 @@
         </div>
     </div>
 
-    <!-- Drag hint -->
     <div id="merge-drag-hint" class="hidden mt-3 text-center">
         <span class="inline-flex items-center gap-2 text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-full border border-dashed border-gray-200 dark:border-gray-700">
             <i class="fa-solid fa-arrows-up-down-left-right"></i>
@@ -469,13 +262,10 @@
         </span>
     </div>
 
-    <!-- Grid View -->
     <div id="merge-grid" class="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
 
-    <!-- List View (hidden by default) -->
     <div id="merge-list-view" class="hidden mt-6 flex flex-col gap-2"></div>
 
-    <!-- Merge Button -->
     <div id="merge-action-bar" class="hidden mt-8 sticky bottom-6">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl shadow-purple-200/50 dark:shadow-purple-900/30 border border-purple-100 dark:border-purple-900/50 p-4 flex items-center gap-4 flex-wrap">
             <div class="flex-1 min-w-0">
@@ -489,7 +279,6 @@
         </div>
     </div>
 
-    <!-- Progress bar for merge -->
     <div id="merge-progress-wrap" class="progress-wrap mt-4"></div>
     <div class="progress-fill" id="merge-progress-fill"></div>
 </div>
@@ -501,7 +290,6 @@
         <i class="fa-solid fa-arrow-left"></i> Atrás
     </button>
 
-    <!-- Header -->
     <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-rose-100 dark:bg-rose-900/30 mb-4">
             <i class="fa-solid fa-scissors text-3xl text-rose-500"></i>
@@ -510,7 +298,6 @@
         <p class="text-gray-500 dark:text-gray-400 text-sm">Carga un PDF, selecciona las páginas que quieres conservar o eliminar, y descarga el resultado</p>
     </div>
 
-    <!-- Drop Zone (shown when no file loaded) -->
     <label id="split-label" class="drop-label split-drop-zone">
         <input type="file" id="split-input" accept="application/pdf" class="sr-only">
         <div class="flex flex-col items-center pointer-events-none">
@@ -525,7 +312,6 @@
         </div>
     </label>
 
-    <!-- Loading skeleton while rendering thumbs -->
     <div id="split-loading" class="hidden text-center py-16">
         <div class="inline-flex flex-col items-center gap-4">
             <div class="w-12 h-12 rounded-full border-4 border-rose-200 border-t-rose-500 animate-spin"></div>
@@ -533,10 +319,8 @@
         </div>
     </div>
 
-    <!-- Editor area (hidden until file loaded) -->
     <div id="split-editor" class="hidden">
 
-        <!-- File info bar -->
         <div class="flex items-center justify-between flex-wrap gap-3 mb-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <div class="flex items-center gap-3 min-w-0">
                 <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center flex-shrink-0">
@@ -553,7 +337,6 @@
             <input type="file" id="split-input-replace" accept="application/pdf" class="sr-only">
         </div>
 
-        <!-- Selection toolbar -->
         <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
             <div class="flex items-center gap-2 flex-wrap">
                 <span id="split-sel-badge" class="inline-flex items-center gap-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 text-sm font-bold px-4 py-2 rounded-full">
@@ -578,7 +361,6 @@
             </div>
         </div>
 
-        <!-- Selection hint -->
         <div class="mb-4 text-center">
             <span class="inline-flex items-center gap-2 text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-full border border-dashed border-gray-200 dark:border-gray-700">
                 <i class="fa-solid fa-hand-pointer"></i>
@@ -587,12 +369,10 @@
             </span>
         </div>
 
-        <!-- Page grid -->
         <div id="split-page-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"></div>
 
     </div>
 
-    <!-- Sticky action bar -->
     <div id="split-action-bar" class="hidden mt-8" style="position:sticky;bottom:24px;z-index:30">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl shadow-rose-200/50 dark:shadow-rose-900/30 border border-rose-100 dark:border-rose-900/50 p-4 flex items-center gap-4 flex-wrap">
             <div class="flex-1 min-w-0">
@@ -634,6 +414,12 @@
 
 </main>
 <script src="config.local.js" onerror="this.remove()"></script>
-<script src="app.js"></script>
+<script src="js/app.js"></script>
+<script src="js/comprimir.js"></script>
+<script src="js/convertapi.js"></script>
+<script src="js/unir.js"></script>
+<script src="js/separar.js"></script>
+<script src="js/imagenes.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
