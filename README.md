@@ -4,6 +4,10 @@ Herramientas para PDFs que corren en el navegador. Las hice porque en la oficina
 
 Casi todo funciona **sin internet**: el procesamiento pasa en el navegador y los archivos no se suben a ningún lado.
 
+**Úsalo aquí:** https://said1ojeda.github.io/ConvertDocs/
+
+Gratis, sin registrarse y sin límite de archivos. Como todo corre en tu navegador, ni yo ni nadie ve lo que conviertes.
+
 ![Inicio](docs/inicio.png)
 
 ## Qué hace
@@ -30,6 +34,8 @@ Casi todo funciona **sin internet**: el procesamiento pasa en el navegador y los
 La primera vez que se usa el OCR tarda unos segundos más, porque tiene que cargar el motor y el modelo de español (unos 5 MB).
 
 ## Cómo correrlo
+
+Si solo lo quieres usar, entra al enlace de arriba. Si lo quieres tener en tu compu o en el servidor de tu oficina:
 
 Tiene que abrirse desde un servidor, no con doble clic al `index.html`, porque el OCR corre en un Web Worker y el navegador no los deja correr desde `file://`.
 
@@ -96,6 +102,14 @@ Todas van en `vendor/` para que funcione sin conexión.
 - [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, para comprimir
 - [tesseract.js-core](https://github.com/naptha/tesseract.js-core) y el modelo `spa` de [tessdata](https://github.com/naptha/tessdata), para el OCR
 - [Tailwind CSS](https://tailwindcss.com), [Font Awesome](https://fontawesome.com) y [Animate.css](https://animate.style)
+
+Cada librería conserva su propia licencia (pdf.js y tesseract son Apache 2.0, las demás MIT, Font Awesome Free con la suya).
+
+## Licencia
+
+MIT. Lo puedes usar, copiar y modificar, también en tu trabajo. Solo deja el aviso de la licencia. Ver [LICENSE](LICENSE).
+
+Si te sirvió o le encontraste un fallo, abre un issue.
 
 ---
 
