@@ -3,6 +3,8 @@
 .drop-label{display:block;border:2px dashed #cbd5e1;border-radius:1rem;padding:3rem;cursor:pointer;transition:all .3s ease;background:#f9fafb;text-align:center}
 .drop-label:hover,.drop-label.dragover{border-color:#E5322D;background:rgba(229,50,45,.05);transform:scale(1.01)}
 .dark .drop-label{background:rgba(17,24,39,.5)}
+/* sin esto la zona de soltar seguia saliendo arriba del editor */
+.drop-label.hidden{display:none}
 .loader{border:4px solid #f3f3f3;border-top:4px solid #E5322D;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto;display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 #toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px}
@@ -186,7 +188,8 @@
     overflow: hidden;
 }
 .dark .page-thumb-wrap { background: #111827; }
-.page-thumb-wrap img, .page-thumb-wrap canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* contain para que las hojas horizontales no salgan recortadas */
+.page-thumb-wrap img, .page-thumb-wrap canvas { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform .25s ease; }
 
 .page-card-footer {
     padding: 7px 8px 8px;
@@ -194,9 +197,78 @@
     text-align: center;
 }
 .dark .page-card-footer { border-top-color: #374151; }
-.page-card-footer span { font-size: 10px; font-weight: 600; color: #9ca3af; }
+.page-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 4px 4px 5px; }
+.page-card-footer span { font-size: 10px; font-weight: 600; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .page-card.selected .page-card-footer span { color: #f43f5e; }
 
 /* en word el boton activo va azul, no morado como en unir */
 [data-word-mode].active-view { color: #2563eb; }
 .dark [data-word-mode].active-view { color: #60a5fa; }
+
+/* editar, girar y reordenar */
+.page-card.dragging-card { opacity: .35; transform: scale(.96); cursor: grabbing; }
+.page-card.drag-over-card { border-color: #f43f5e; box-shadow: 0 0 0 3px rgba(244,63,94,.3); transform: scale(1.03); }
+
+.page-card-rot, .page-card-zoom {
+    border: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 8px; font-size: 11px;
+    background: transparent; color: #9ca3af; transition: background .15s, color .15s;
+    flex-shrink: 0;
+}
+.page-card-rot:hover { background: #fff1f2; color: #f43f5e; }
+.dark .page-card-rot:hover { background: rgba(244,63,94,.12); }
+
+.page-card-zoom {
+    position: absolute; bottom: 42px; right: 7px;
+    background: rgba(0,0,0,.5); color: #fff;
+    opacity: 0; transition: opacity .15s, background .15s;
+}
+.page-card:hover .page-card-zoom { opacity: 1; }
+.page-card-zoom:hover { background: #f43f5e; }
+@media (hover: none) { .page-card-zoom { opacity: .85; } }
+
+.split-tools {
+    display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between;
+    padding: 10px 12px; border-radius: 14px;
+    background: #fff; border: 1px solid #f3f4f6;
+}
+.dark .split-tools { background: #1f2937; border-color: #374151; }
+.split-tools-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.split-tools-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #9ca3af; margin-right: 2px; }
+
+.split-range-input {
+    width: 150px; padding: 6px 10px; border-radius: 10px; font-size: 12px;
+    border: 1.5px solid #e5e7eb; background: #fff; color: #374151; outline: none;
+    transition: border-color .15s;
+}
+.split-range-input:focus { border-color: #f43f5e; }
+.dark .split-range-input { background: #111827; border-color: #374151; color: #e5e7eb; }
+
+#split-action-bar button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+#btn-split-all:hover { background: #fff1f2; }
+.dark #btn-split-all:hover { background: rgba(244,63,94,.12); }
+
+/* vista grande */
+.split-preview {
+    position: fixed; inset: 0; z-index: 60;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    background: rgba(17,24,39,.85); padding: 16px;
+}
+.split-preview.open { display: flex; }
+.split-preview-bar {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap; justify-content: center;
+    background: #fff; color: #374151; border-radius: 14px; padding: 6px 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+.dark .split-preview-bar { background: #1f2937; color: #e5e7eb; }
+.split-preview-bar button {
+    border: 0; background: transparent; color: inherit; cursor: pointer;
+    width: 34px; height: 34px; border-radius: 10px; font-size: 14px;
+}
+.split-preview-bar button:hover { background: #fff1f2; color: #f43f5e; }
+.dark .split-preview-bar button:hover { background: rgba(244,63,94,.12); }
+.split-preview-bar span[data-pv-label] { font-size: 12px; font-weight: 700; padding: 0 6px; min-width: 120px; text-align: center; }
+.split-preview-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 4px; }
+.dark .split-preview-sep { background: #374151; }
+.split-preview-body { max-width: 100%; max-height: 82vh; overflow: auto; }
+.split-preview-body canvas { display: block; background: #fff; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: 100%; height: auto; }

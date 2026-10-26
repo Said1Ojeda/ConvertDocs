@@ -19,8 +19,17 @@ Gratis, sin registrarse y sin límite de archivos. Como todo corre en tu navegad
 | PDF a Word con formato | No | Usa ConvertAPI y respeta tablas, imágenes y colores. |
 | PDF a Excel | No | Usa ConvertAPI. |
 | Unir PDF | Sí | Se arrastran las miniaturas para escoger el orden. |
-| Editar / separar PDF | Sí | Se escogen las páginas que se quedan o las que se van. |
+| Editar / separar PDF | Sí | Se escogen las páginas que se quedan o las que se van, se giran, se ponen en vertical u horizontal y se cambian de orden. |
 | JPG / PNG a PDF | Sí | Cada imagen queda como una página. |
+
+### Editar PDF
+
+- Cada página se gira con las flechas de su tarjeta, o se gira toda la selección de un solo.
+- Los botones Vertical y Horizontal acomodan solas las hojas que estén al revés de lo que se pide.
+- Las páginas se arrastran para cambiarlas de orden.
+- Se pueden escoger por rango, por ejemplo `1-3, 5, 8-10`.
+- La lupa abre la página en grande y ahí también se puede girar.
+- Guardar todo descarga el PDF completo con los giros y el orden nuevo.
 
 ### PDF a Word sin internet
 

@@ -66,7 +66,7 @@
         <div onclick="app.navigate('split-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-rose-500 transition-all duration-300">
             <div class="w-14 h-14 rounded-full bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-scissors text-2xl text-rose-500"></i></div>
             <h2 class="text-xl font-bold mb-1">Editar / Separar PDF</h2>
-            <p class="text-sm text-gray-500">Elimina páginas o extrae secciones.</p>
+            <p class="text-sm text-gray-500">Elimina, extrae, gira y reordena páginas.</p>
         </div>
         <div onclick="app.navigate('img-to-pdf')" class="tool-card group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl cursor-pointer border border-transparent hover:border-yellow-500 transition-all duration-300">
             <div class="w-14 h-14 rounded-full bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><i class="fa-solid fa-images text-2xl text-yellow-500"></i></div>
@@ -319,7 +319,7 @@
             <i class="fa-solid fa-scissors text-3xl text-rose-500"></i>
         </div>
         <h1 class="text-4xl font-black mb-2">Editar &amp; Separar PDF</h1>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Carga un PDF, selecciona las páginas que quieres conservar o eliminar, y descarga el resultado</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">Carga un PDF, escoge qué páginas se quedan, gíralas o cámbialas de lugar, y descarga el resultado</p>
     </div>
 
     <label id="split-label" class="drop-label split-drop-zone">
@@ -385,11 +385,38 @@
             </div>
         </div>
 
+        <div class="split-tools mb-4">
+            <div class="split-tools-group">
+                <span class="split-tools-title">Páginas</span>
+                <input type="text" id="split-range-input" class="split-range-input" placeholder="Ej. 1-3, 5, 8-10" inputmode="numeric" autocomplete="off" aria-label="Páginas a seleccionar">
+                <button onclick="app.splitSelectRange()" class="split-ctrl-btn">
+                    <i class="fa-solid fa-list-ol"></i> Seleccionar
+                </button>
+            </div>
+            <div class="split-tools-group">
+                <span class="split-tools-title">A la selección</span>
+                <button onclick="app.splitRotateSel(-90)" class="split-ctrl-btn" title="Girar a la izquierda">
+                    <i class="fa-solid fa-rotate-left"></i> Girar
+                </button>
+                <button onclick="app.splitRotateSel(90)" class="split-ctrl-btn" title="Girar a la derecha">
+                    <i class="fa-solid fa-rotate-right"></i> Girar
+                </button>
+                <button onclick="app.splitOrientar('vertical')" class="split-ctrl-btn" title="Deja las hojas paradas">
+                    <i class="fa-solid fa-arrows-up-down"></i> Vertical
+                </button>
+                <button onclick="app.splitOrientar('horizontal')" class="split-ctrl-btn" title="Deja las hojas acostadas">
+                    <i class="fa-solid fa-arrows-left-right"></i> Horizontal
+                </button>
+                <button id="btn-split-reset" onclick="app.splitResetCambios()" class="split-ctrl-btn hidden" title="Quita giros y vuelve al orden original">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Deshacer cambios
+                </button>
+            </div>
+        </div>
+
         <div class="mb-4 text-center">
             <span class="inline-flex items-center gap-2 text-xs text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-full border border-dashed border-gray-200 dark:border-gray-700">
                 <i class="fa-solid fa-hand-pointer"></i>
-                Haz clic en las páginas para seleccionarlas ----  las paginas seleccionadas se incluirán en el PDF
-                si quieres solo una pagina le puedes dar eliminar seleccion y las hojas que no estan seleccionadas se agregaran al PFD 
+                Toca una página para seleccionarla, arrástrala para cambiarla de lugar y usa las flechas de abajo para girarla
             </span>
         </div>
 
@@ -404,8 +431,11 @@
                 <p id="split-action-summary" class="text-xs text-gray-400">Selecciona páginas para continuar</p>
             </div>
             <div class="flex gap-2 flex-wrap">
-                <button id="btn-split-delete" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-3 px-5 rounded-xl font-bold hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95 text-sm">
+                <button id="btn-split-delete" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-3 px-5 rounded-xl font-bold hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95 text-sm" title="Descarga el PDF sin las páginas seleccionadas">
                     <i class="fa-solid fa-trash"></i> Eliminar selección
+                </button>
+                <button id="btn-split-all" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-3 px-5 rounded-xl font-bold hover:text-rose-500 transition-all duration-200 active:scale-95 text-sm" title="Descarga todas las páginas con los giros y el orden nuevo">
+                    <i class="fa-solid fa-file-arrow-down"></i> Guardar todo
                 </button>
                 <button id="btn-split-extract" class="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white py-3 px-6 rounded-xl font-bold hover:from-rose-600 hover:to-pink-600 transition-all duration-200 shadow-lg shadow-rose-300/50 dark:shadow-rose-900/50 active:scale-95">
                     <i class="fa-solid fa-file-export"></i> <span id="btn-split-extract-label">Extraer selección</span>
